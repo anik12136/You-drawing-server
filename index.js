@@ -3,6 +3,8 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config()
+// const jwt = require('jsonwebtoken');
+
 
 const port = process.env.PORT || 8000;
 
@@ -13,7 +15,7 @@ app.use(express.json());
 
 // const { MongoClient, ServerApiVersion } = require('mongodb');
 // const uri = "mongodb+srv://<username>:<password>@cluster0.00oqpy6.mongodb.net/?retryWrites=true&w=majority";
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.00oqpy6.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -33,8 +35,9 @@ async function run() {
     const usersCollection = client.db("summerCampSchool").collection("schoolUser");
 
 
-    // users related API
+    //..............users related API................................
 
+                //insert user into the database 
     app.post('/users', async (req, res) => {
         const user = req.body;
         const query = { email: user.email }
@@ -47,8 +50,50 @@ async function run() {
         const result = await usersCollection.insertOne(user);
         res.send(result);
       });
+                //get users from database
+      app.get('/users', async (req, res) => {
+        const result = await usersCollection.find().toArray();
+        res.send(result);
+      });
 
+                //make admin 
+                app.patch('/users/admin/:id', async (req, res) => {
+                    const id = req.params.id;
+                    console.log(id);
+                    const filter = { _id: new ObjectId(id) };
+                    const updateDoc = {
+                      $set: {
+                        role: 'admin'
+                      },
+                    };
+              
+                    const result = await usersCollection.updateOne(filter, updateDoc);
+                    res.send(result);
+              
+                  })
 
+                //   make instructor
+                app.patch('/users/instructor/:id', async (req, res) => {
+                    const id = req.params.id;
+                    console.log(id);
+                    const filter = { _id: new ObjectId(id) };
+                    const updateDoc = {
+                      $set: {
+                        role: 'instructor'
+                      },
+                    };
+              
+                    const result = await usersCollection.updateOne(filter, updateDoc);
+                    res.send(result);
+              
+                  })
+
+                //instructor page data
+                const query = { role: 'instructor' };
+                app.get('/instructors', async (req, res) => {
+                    const result = await usersCollection.find(query).toArray();
+                    res.send(result);
+                  });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
