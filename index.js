@@ -111,6 +111,27 @@ async function run() {
                     res.send(result);
                   });
 
+                  //all instructor class api
+                  app.get('/allClasses', async (req, res) => {
+                    const result = await allClassesCollection.find().toArray();
+                    res.send(result);
+                  });
+
+
+                  // only one instructor class
+                  app.get('/allClasses/:email', async (req, res) => {
+                    const email = req.params.email;
+                    const result = await allClassesCollection.find({ InstructorEmail: email }).toArray();
+                    res.send(result);
+                    });
+
+                    // approved classes
+                    const approvedQuery = {status:'approved'};
+                    app.get('/approved', async (req, res) => {
+                      const result = await allClassesCollection.find(approvedQuery).toArray();
+                      res.send(result);
+                    });
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
