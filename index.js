@@ -33,6 +33,7 @@ async function run() {
     // await client.connect();
 
     const usersCollection = client.db("summerCampSchool").collection("schoolUser");
+    const allClassesCollection = client.db("summerCampSchool").collection("allClasses");
 
 
     //..............users related API................................
@@ -100,6 +101,14 @@ async function run() {
                   const email = req.params.email;
                   const result = await usersCollection.findOne({ email: email });
                   res.send(result);
+                  });
+
+                  // add a class 
+
+                  app.post('/allClasses', async (req, res) => {
+                    const newClass = req.body;
+                    const result = await allClassesCollection.insertOne(newClass);
+                    res.send(result);
                   });
 
 
